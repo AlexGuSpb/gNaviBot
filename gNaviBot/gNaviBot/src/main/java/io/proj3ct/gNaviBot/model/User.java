@@ -2,7 +2,6 @@ package io.proj3ct.gNaviBot.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
 import java.sql.Timestamp;
 
 @Entity(name = "userDataTable")

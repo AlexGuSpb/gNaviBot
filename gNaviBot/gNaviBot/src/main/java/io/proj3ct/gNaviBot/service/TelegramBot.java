@@ -2,10 +2,13 @@ package io.proj3ct.gNaviBot.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.proj3ct.gNaviBot.config.BotConfig;
+import io.proj3ct.gNaviBot.model.Ads;
+import io.proj3ct.gNaviBot.model.AdsRepository;
 import io.proj3ct.gNaviBot.model.User;
 import io.proj3ct.gNaviBot.model.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -30,6 +33,9 @@ import java.util.List;
 public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AdsRepository adsRepository;
 
     final BotConfig config;
     static final String HELP_TEXT = "В случае вопросов пишите @spbalexgus или звоните +7(812)320-65-66 .\n\n";
@@ -225,5 +231,19 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage.setText(textToSend);
 
         executeMessage(sendMessage);
+    }
+    @Scheduled(cron = "${cron.scheduler}")
+    private void sendAds() {
+
+        var ads = adsRepository.findAll();
+        var users = userRepository.findAll();
+
+        for (Ads ad : ads) {
+            for (User user : users) {
+                prepareAndSendMessage(user.getChatId(), ad.getAd());
+            }
+            
+        }
+
     }
 }
